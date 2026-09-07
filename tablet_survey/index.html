@@ -380,6 +380,55 @@ button {
   gap: var(--space-md);
 }
 
+.camera-preview-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+  align-items: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  border: 1px solid color-mix(in oklch, var(--primary) 18%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in oklch, var(--surface-raised) 88%, var(--primary-soft));
+  box-shadow: var(--shadow-sm);
+}
+
+.camera-preview-copy {
+  display: grid;
+  gap: var(--space-xs);
+  color: var(--primary-strong);
+}
+
+.camera-preview-copy strong {
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.camera-preview-copy span {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.camera-preview-frame {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: oklch(18% 0.02 205);
+}
+
+.camera-preview-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-preview-panel.is-front-camera .camera-preview-frame video {
+  transform: scaleX(-1);
+}
+
 .question-instructions {
   margin: 0 0 var(--space-sm);
   color: var(--primary-strong);
@@ -580,6 +629,10 @@ button {
     flex-direction: column;
   }
 
+  .camera-preview-panel {
+    grid-template-columns: 1fr;
+  }
+
   .primary-btn,
   .secondary-btn,
   .record-toggle-btn {
@@ -609,7 +662,8 @@ button {
   .field-input,
   .field-select,
   .option-item,
-  .question-image {
+  .question-image,
+  .camera-preview-panel {
     box-shadow: none;
   }
 
@@ -681,7 +735,7 @@ button {
             <p>尊敬的受访者：</p>
             <p>您好！本问卷旨在了解湖州市老年人失能风险监测评估相关情况，内容包括长期护理失能等级、一般资料与疾病史、抑郁与焦虑状态、认知能力、日常生活能力、体力活动和营养状况等方面。请您根据真实情况作答，您的意见对我们的项目非常重要。</p>
             <p>为了保护您的隐私，我们承诺本次调查采用匿名方式，所有个人信息将被严格保密，仅用于研究和评估分析。整个问卷预计耗时约15分钟，请您在方便的时候完成。</p>
-            <p>本系统支持在问卷填写过程中由工作人员手动开启摄像头录制，用于采集填写问卷时的面部表情资料，并与答题过程按题号对应保存。摄像头画面不会在页面中展示，是否开启遵循您的自愿同意；若您不允许开启摄像头，后续将仅以问卷形式进行。</p>
+            <p>本系统支持在问卷填写过程中由工作人员手动开启摄像头录制，用于采集填写问卷时的面部表情资料，并与答题过程按题号对应保存。开启摄像头后，页面会显示实时预览画面，方便您确认面部是否位于画面中央；关闭摄像头后预览会同步隐藏。是否开启摄像头遵循您的自愿同意，若您不允许开启摄像头，后续将仅以问卷形式进行。</p>
             <p>如需同步记录作答界面，工作人员可在点击“开始评估”前手动开启平板系统录屏。本网页将在导出资料中记录每道题的开始、结束和相对时间戳，便于后续将系统录屏按题切分。</p>
           </div>
         </div>
@@ -696,7 +750,7 @@ button {
           <h3>请阅读并确认知情同意书</h3>
           <div class="consent-document">
             <p>感谢您参与本次老年人失能风险监测评估。本调查旨在了解湖州市老年人失能风险、日常生活能力、认知与沟通能力、心理状态、体力活动和营养状况等相关情况。</p>
-            <p>问卷填写过程中，工作人员可在题目页面手动开启或结束平板前置摄像头录制。视频仅用于记录作答过程中的面部表情资料，并会与每一道题的题号、答案和作答时长对应保存。摄像头画面不会在页面中展示。</p>
+            <p>问卷填写过程中，工作人员可在题目页面手动开启或结束平板前置摄像头录制。视频仅用于记录作答过程中的面部表情资料，并会与每一道题的题号、答案和作答时长对应保存。开启摄像头后，页面会显示实时预览画面，方便确认面部是否对准；关闭摄像头后预览会同步隐藏。</p>
             <p>您可以自主决定是否允许摄像头采集；如未授权或未开启摄像头，您仍可继续完成问卷。导出的资料包将包含问卷答案、题号对应关系、兼容性信息，以及在已授权情况下采集到的视频文件。</p>
             <p>所有资料将严格保密，仅用于本次研究和评估分析。请您确认已经理解上述内容，并自愿继续参与本次问卷评估。</p>
           </div>
@@ -717,6 +771,15 @@ button {
           <p class="question-helper">请按照最近一段时间的真实感受作答 </p>
           <div id="answerHost" class="answer-host"></div>
         </article>
+        <aside class="camera-preview-panel is-hidden" id="cameraPreviewPanel" aria-live="polite">
+          <div class="camera-preview-copy">
+            <strong id="cameraPreviewTitle">摄像头对准预览</strong>
+            <span id="cameraPreviewHint">请让面部位于画面中央，并保持光线充足。</span>
+          </div>
+          <div class="camera-preview-frame">
+            <video id="cameraAlignmentPreview" autoplay muted playsinline></video>
+          </div>
+        </aside>
         <div class="action-row question-actions">
           <button class="record-toggle-btn" id="cameraToggleBtn" type="button">开始摄像头录制</button>
           <button class="secondary-btn is-hidden" id="cameraSwitchBtn" type="button">切换为后置摄像头</button>
@@ -1048,6 +1111,10 @@ const state = {
 
 const els = {
   cameraPreview: document.getElementById("cameraPreview"),
+  cameraPreviewPanel: document.getElementById("cameraPreviewPanel"),
+  cameraAlignmentPreview: document.getElementById("cameraAlignmentPreview"),
+  cameraPreviewTitle: document.getElementById("cameraPreviewTitle"),
+  cameraPreviewHint: document.getElementById("cameraPreviewHint"),
   cameraPlaceholder: document.getElementById("cameraPlaceholder"),
   recordingPill: document.getElementById("recordingPill"),
   currentQuestionLabel: document.getElementById("currentQuestionLabel"),
@@ -1150,7 +1217,7 @@ function renderCompatibility() {
 }
 
 async function beginAssessment() {
-  window.alert("进入问卷后，工作人员可在题目页面手动开启或结束摄像头录制。摄像头画面不会在页面中展示；若不允许开启，后续将仅以问卷形式继续。");
+  window.alert("进入问卷后，工作人员可在题目页面手动开启或结束摄像头录制。开启摄像头后会显示实时预览，方便确认面部是否对准；若不允许开启，后续将仅以问卷形式继续。");
 
   state.screenRecordingReferenceEpoch = Date.now();
   els.beginAssessmentBtn.disabled = true;
@@ -1179,10 +1246,12 @@ async function requestCamera({ showAlert = true } = {}) {
       audio: false
     });
     els.cameraPreview.srcObject = state.stream;
+    syncCameraPreview();
     els.cameraPlaceholder.classList.add("is-hidden");
     state.stream.getVideoTracks().forEach((track) => {
       track.onended = () => {
         state.cameraRecordingEnabled = false;
+        syncCameraPreview();
         updateCameraControlUi();
       };
     });
@@ -1422,7 +1491,6 @@ function renderAnswerControl(question) {
   if (typeof question.min !== "undefined") input.min = question.min;
   if (typeof question.max !== "undefined") input.max = question.max;
   els.answerHost.appendChild(input);
-  input.focus({ preventScroll: true });
 }
 
 function restorePreviousAnswer(question) {
@@ -1474,9 +1542,29 @@ function updateCameraControlUi() {
   els.cameraToggleBtn.textContent = isActive || state.cameraRecordingEnabled ? "结束摄像头录制" : "开始摄像头录制";
   els.cameraToggleBtn.classList.toggle("is-recording", isActive || state.cameraRecordingEnabled);
   els.cameraControlStatus.textContent = isActive ? `${facingLabel}摄像头录制中` : "摄像头未录制";
+  syncCameraPreview();
   if (els.cameraSwitchBtn) {
     els.cameraSwitchBtn.classList.toggle("is-hidden", !isCameraOn);
     els.cameraSwitchBtn.textContent = state.cameraFacingMode === "environment" ? "切换为前置摄像头" : "切换为后置摄像头";
+  }
+}
+
+function syncCameraPreview() {
+  if (!els.cameraPreviewPanel || !els.cameraAlignmentPreview) return;
+
+  const isCameraOn = hasLiveCameraStream();
+  const isFrontCamera = state.cameraFacingMode !== "environment";
+  els.cameraPreviewPanel.classList.toggle("is-hidden", !isCameraOn);
+  els.cameraPreviewPanel.classList.toggle("is-front-camera", isCameraOn && isFrontCamera);
+  els.cameraAlignmentPreview.srcObject = isCameraOn ? state.stream : null;
+
+  if (els.cameraPreviewTitle) {
+    els.cameraPreviewTitle.textContent = isFrontCamera ? "前置摄像头对准预览" : "后置摄像头对准预览";
+  }
+  if (els.cameraPreviewHint) {
+    els.cameraPreviewHint.textContent = isFrontCamera
+      ? "请让面部位于画面中央，并保持光线充足。"
+      : "当前为后置摄像头，请确认拍摄对象位于画面中央。";
   }
 }
 
@@ -2443,6 +2531,7 @@ function stopCamera() {
   state.stream.getTracks().forEach((track) => track.stop());
   state.stream = null;
   els.cameraPreview.srcObject = null;
+  syncCameraPreview();
   els.cameraPlaceholder.classList.remove("is-hidden");
 }
 
