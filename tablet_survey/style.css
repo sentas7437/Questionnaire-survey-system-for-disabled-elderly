@@ -624,9 +624,11 @@ button {
   }
 
   .camera-preview-panel {
-    right: var(--space-sm);
-    top: var(--space-sm);
-    width: min(180px, calc(100vw - var(--space-lg)));
+    position: static;
+    order: -1;
+    justify-self: end;
+    width: min(180px, 56vw);
+    margin-bottom: var(--space-md);
   }
 
   .camera-preview-copy span {
