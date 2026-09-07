@@ -371,6 +371,55 @@ button {
   gap: var(--space-md);
 }
 
+.camera-preview-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+  align-items: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  border: 1px solid color-mix(in oklch, var(--primary) 18%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in oklch, var(--surface-raised) 88%, var(--primary-soft));
+  box-shadow: var(--shadow-sm);
+}
+
+.camera-preview-copy {
+  display: grid;
+  gap: var(--space-xs);
+  color: var(--primary-strong);
+}
+
+.camera-preview-copy strong {
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.camera-preview-copy span {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.camera-preview-frame {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: oklch(18% 0.02 205);
+}
+
+.camera-preview-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-preview-panel.is-front-camera .camera-preview-frame video {
+  transform: scaleX(-1);
+}
+
 .question-instructions {
   margin: 0 0 var(--space-sm);
   color: var(--primary-strong);
@@ -571,6 +620,10 @@ button {
     flex-direction: column;
   }
 
+  .camera-preview-panel {
+    grid-template-columns: 1fr;
+  }
+
   .primary-btn,
   .secondary-btn,
   .record-toggle-btn {
@@ -600,7 +653,8 @@ button {
   .field-input,
   .field-select,
   .option-item,
-  .question-image {
+  .question-image,
+  .camera-preview-panel {
     box-shadow: none;
   }
 
