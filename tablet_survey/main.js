@@ -305,6 +305,10 @@ const state = {
 
 const els = {
   cameraPreview: document.getElementById("cameraPreview"),
+  cameraPreviewPanel: document.getElementById("cameraPreviewPanel"),
+  cameraAlignmentPreview: document.getElementById("cameraAlignmentPreview"),
+  cameraPreviewTitle: document.getElementById("cameraPreviewTitle"),
+  cameraPreviewHint: document.getElementById("cameraPreviewHint"),
   cameraPlaceholder: document.getElementById("cameraPlaceholder"),
   recordingPill: document.getElementById("recordingPill"),
   currentQuestionLabel: document.getElementById("currentQuestionLabel"),
@@ -407,7 +411,7 @@ function renderCompatibility() {
 }
 
 async function beginAssessment() {
-  window.alert("进入问卷后，工作人员可在题目页面手动开启或结束摄像头录制。摄像头画面不会在页面中展示；若不允许开启，后续将仅以问卷形式继续。");
+  window.alert("进入问卷后，工作人员可在题目页面手动开启或结束摄像头录制。开启摄像头后会显示实时预览，方便确认面部是否对准；若不允许开启，后续将仅以问卷形式继续。");
 
   state.screenRecordingReferenceEpoch = Date.now();
   els.beginAssessmentBtn.disabled = true;
@@ -436,10 +440,12 @@ async function requestCamera({ showAlert = true } = {}) {
       audio: false
     });
     els.cameraPreview.srcObject = state.stream;
+    syncCameraPreview();
     els.cameraPlaceholder.classList.add("is-hidden");
     state.stream.getVideoTracks().forEach((track) => {
       track.onended = () => {
         state.cameraRecordingEnabled = false;
+        syncCameraPreview();
         updateCameraControlUi();
       };
     });
@@ -679,7 +685,6 @@ function renderAnswerControl(question) {
   if (typeof question.min !== "undefined") input.min = question.min;
   if (typeof question.max !== "undefined") input.max = question.max;
   els.answerHost.appendChild(input);
-  input.focus({ preventScroll: true });
 }
 
 function restorePreviousAnswer(question) {
@@ -731,9 +736,29 @@ function updateCameraControlUi() {
   els.cameraToggleBtn.textContent = isActive || state.cameraRecordingEnabled ? "结束摄像头录制" : "开始摄像头录制";
   els.cameraToggleBtn.classList.toggle("is-recording", isActive || state.cameraRecordingEnabled);
   els.cameraControlStatus.textContent = isActive ? `${facingLabel}摄像头录制中` : "摄像头未录制";
+  syncCameraPreview();
   if (els.cameraSwitchBtn) {
     els.cameraSwitchBtn.classList.toggle("is-hidden", !isCameraOn);
     els.cameraSwitchBtn.textContent = state.cameraFacingMode === "environment" ? "切换为前置摄像头" : "切换为后置摄像头";
+  }
+}
+
+function syncCameraPreview() {
+  if (!els.cameraPreviewPanel || !els.cameraAlignmentPreview) return;
+
+  const isCameraOn = hasLiveCameraStream();
+  const isFrontCamera = state.cameraFacingMode !== "environment";
+  els.cameraPreviewPanel.classList.toggle("is-hidden", !isCameraOn);
+  els.cameraPreviewPanel.classList.toggle("is-front-camera", isCameraOn && isFrontCamera);
+  els.cameraAlignmentPreview.srcObject = isCameraOn ? state.stream : null;
+
+  if (els.cameraPreviewTitle) {
+    els.cameraPreviewTitle.textContent = isFrontCamera ? "前置摄像头对准预览" : "后置摄像头对准预览";
+  }
+  if (els.cameraPreviewHint) {
+    els.cameraPreviewHint.textContent = isFrontCamera
+      ? "请让面部位于画面中央，并保持光线充足。"
+      : "当前为后置摄像头，请确认拍摄对象位于画面中央。";
   }
 }
 
@@ -1700,6 +1725,7 @@ function stopCamera() {
   state.stream.getTracks().forEach((track) => track.stop());
   state.stream = null;
   els.cameraPreview.srcObject = null;
+  syncCameraPreview();
   els.cameraPlaceholder.classList.remove("is-hidden");
 }
 
