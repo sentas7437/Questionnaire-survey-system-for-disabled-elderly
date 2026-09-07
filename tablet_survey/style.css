@@ -374,12 +374,12 @@ button {
 .camera-preview-panel {
   position: fixed;
   right: clamp(14px, 3vw, 28px);
-  bottom: clamp(14px, 3vw, 28px);
+  top: clamp(14px, 3vw, 28px);
   z-index: 20;
   display: grid;
-  width: min(340px, calc(100vw - 28px));
+  width: min(240px, calc(100vw - 28px));
   grid-template-columns: 1fr;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   padding: var(--space-sm);
   border: 1px solid color-mix(in oklch, var(--primary) 18%, var(--line));
   border-radius: var(--radius-md);
@@ -625,8 +625,12 @@ button {
 
   .camera-preview-panel {
     right: var(--space-sm);
-    bottom: var(--space-sm);
-    width: min(260px, calc(100vw - var(--space-lg)));
+    top: var(--space-sm);
+    width: min(180px, calc(100vw - var(--space-lg)));
+  }
+
+  .camera-preview-copy span {
+    display: none;
   }
 
   .primary-btn,
