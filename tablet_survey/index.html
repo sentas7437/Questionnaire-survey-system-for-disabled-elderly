@@ -381,12 +381,15 @@ button {
 }
 
 .camera-preview-panel {
+  position: fixed;
+  right: clamp(14px, 3vw, 28px);
+  bottom: clamp(14px, 3vw, 28px);
+  z-index: 20;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
-  align-items: center;
-  gap: var(--space-lg);
-  margin-top: var(--space-lg);
-  padding: var(--space-md);
+  width: min(340px, calc(100vw - 28px));
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
   border: 1px solid color-mix(in oklch, var(--primary) 18%, var(--line));
   border-radius: var(--radius-md);
   background: color-mix(in oklch, var(--surface-raised) 88%, var(--primary-soft));
@@ -395,19 +398,19 @@ button {
 
 .camera-preview-copy {
   display: grid;
-  gap: var(--space-xs);
+  gap: var(--space-2xs);
   color: var(--primary-strong);
 }
 
 .camera-preview-copy strong {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 850;
 }
 
 .camera-preview-copy span {
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .camera-preview-frame {
@@ -630,7 +633,9 @@ button {
   }
 
   .camera-preview-panel {
-    grid-template-columns: 1fr;
+    right: var(--space-sm);
+    bottom: var(--space-sm);
+    width: min(260px, calc(100vw - var(--space-lg)));
   }
 
   .primary-btn,
@@ -1561,6 +1566,9 @@ function syncCameraPreview() {
   const isFrontCamera = state.cameraFacingMode !== "environment";
   els.cameraPreviewPanel.classList.toggle("is-hidden", !isCameraOn);
   els.cameraPreviewPanel.classList.toggle("is-front-camera", isCameraOn && isFrontCamera);
+  els.cameraAlignmentPreview.muted = true;
+  els.cameraAlignmentPreview.defaultMuted = true;
+  els.cameraAlignmentPreview.playsInline = true;
   els.cameraAlignmentPreview.srcObject = isCameraOn ? state.stream : null;
   if (isCameraOn) playVideoElement(els.cameraAlignmentPreview);
 
