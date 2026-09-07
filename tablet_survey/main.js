@@ -755,6 +755,9 @@ function syncCameraPreview() {
   const isFrontCamera = state.cameraFacingMode !== "environment";
   els.cameraPreviewPanel.classList.toggle("is-hidden", !isCameraOn);
   els.cameraPreviewPanel.classList.toggle("is-front-camera", isCameraOn && isFrontCamera);
+  els.cameraAlignmentPreview.muted = true;
+  els.cameraAlignmentPreview.defaultMuted = true;
+  els.cameraAlignmentPreview.playsInline = true;
   els.cameraAlignmentPreview.srcObject = isCameraOn ? state.stream : null;
   if (isCameraOn) playVideoElement(els.cameraAlignmentPreview);
 
