@@ -1169,6 +1169,10 @@ async function init() {
   els.consentAgreeBtn.addEventListener("click", agreeConsentAndStartSurvey);
   els.cameraToggleBtn.addEventListener("click", toggleCameraRecording);
   els.cameraSwitchBtn.addEventListener("click", switchCameraFacingMode);
+  if (els.cameraAlignmentPreview) {
+    els.cameraAlignmentPreview.addEventListener("click", () => playVideoElement(els.cameraAlignmentPreview));
+    els.cameraAlignmentPreview.addEventListener("touchstart", () => playVideoElement(els.cameraAlignmentPreview), { passive: true });
+  }
   els.prevBtn.addEventListener("click", handlePreviousQuestion);
   els.nextBtn.addEventListener("click", handleNextQuestion);
   els.exportBtn.addEventListener("click", exportZip);
@@ -1246,6 +1250,7 @@ async function requestCamera({ showAlert = true } = {}) {
       audio: false
     });
     els.cameraPreview.srcObject = state.stream;
+    playVideoElement(els.cameraPreview);
     syncCameraPreview();
     els.cameraPlaceholder.classList.add("is-hidden");
     state.stream.getVideoTracks().forEach((track) => {
@@ -1557,6 +1562,7 @@ function syncCameraPreview() {
   els.cameraPreviewPanel.classList.toggle("is-hidden", !isCameraOn);
   els.cameraPreviewPanel.classList.toggle("is-front-camera", isCameraOn && isFrontCamera);
   els.cameraAlignmentPreview.srcObject = isCameraOn ? state.stream : null;
+  if (isCameraOn) playVideoElement(els.cameraAlignmentPreview);
 
   if (els.cameraPreviewTitle) {
     els.cameraPreviewTitle.textContent = isFrontCamera ? "前置摄像头对准预览" : "后置摄像头对准预览";
@@ -1566,6 +1572,18 @@ function syncCameraPreview() {
       ? "请让面部位于画面中央，并保持光线充足。"
       : "当前为后置摄像头，请确认拍摄对象位于画面中央。";
   }
+}
+
+function playVideoElement(videoEl) {
+  if (!videoEl || !videoEl.srcObject) return;
+  const playPromise = videoEl.play();
+  if (!playPromise || typeof playPromise.catch !== "function") return;
+  playPromise.catch((error) => {
+    console.warn("Camera preview playback was blocked.", error);
+    if (els.cameraPreviewHint && videoEl === els.cameraAlignmentPreview) {
+      els.cameraPreviewHint.textContent = "摄像头已开启，但当前浏览器阻止了预览自动播放。请轻触预览区域或刷新后重试。";
+    }
+  });
 }
 
 async function toggleCameraRecording() {
